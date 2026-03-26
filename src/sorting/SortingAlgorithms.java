@@ -47,8 +47,39 @@ public class SortingAlgorithms {
         }
     }
 
-    public static void mergeSort() {
+    public static void mergeSort( int[] array ) {
+        int n = array.length;
+        int[] tempMS = new int[n];
+        mergeSort( array, 0, n - 1, tempMS );
+    }
 
+    private static void mergeSort( int[] array, int start, int end, int[] tempMS ) {
+        int middle;
+        if ( start < end ) {
+            middle = ( start + end ) / 2;
+            mergeSort( array, start, middle, tempMS ); // esquerda
+            mergeSort( array, middle + 1, end, tempMS ); // direita
+            merge( array, start, middle, end, tempMS ); // intercalação
+        }
+    }
+
+    private static void merge( int[] array, int start, int middle, int end, int[] tempMS ) {
+        int i = start;
+        int j = middle + 1;
+        for ( int k = start; k <= end; k++ ) {
+            tempMS[k] = array[k];
+        }
+        for ( int k = start; k <= end; k++ ) {
+            if ( i > middle ) {
+                array[k] = tempMS[j++];
+            } else if ( j > end ) {
+                array[k] = tempMS[i++];
+            } else if ( tempMS[j] < tempMS[i] ) {
+                array[k] = tempMS[j++];
+            } else {
+                array[k] = tempMS[i++];
+            }
+        }
     }
 
     public static void bucketSort() {
