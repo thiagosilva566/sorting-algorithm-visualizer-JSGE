@@ -82,8 +82,36 @@ public class SortingAlgorithms {
         }
     }
 
-    public static void bucketSort() {
-
+    public static void bucketSort( int[] array ) {
+        int n = array.length;
+        final int K = 10;
+        int[][] buckets = new int[K][n];
+        int[] c = new int[K];
+        int t1 = 10;
+        int t2 = 1;
+        int max = -1;
+        boolean first = true;
+        while ( max < 0 || max / t2 != 0 ) {
+// distribuição
+            for ( int i = 0; i < n; i++ ) {
+                int p = array[i] % t1 / t2;
+                buckets[p][c[p]++] = array[i];
+                if ( first ) {
+                    max = max < array[i] ? array[i] : max;
+                }
+            }
+            first = false;
+// coleta
+            int k = 0;
+            for ( int i = 0; i < K; i++ ) {
+                for ( int j = 0; j < c[i]; j++ ) {
+                    array[k++] = buckets[i][j];
+                }
+                c[i] = 0;
+            }
+            t2 = t1;
+            t1 *= 10;
+        }
     }
 
     public static void quickSort() {
