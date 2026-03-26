@@ -1,14 +1,10 @@
 package template;
 
 import br.com.davidbuzatto.jsge.core.engine.EngineFrame;
-import br.com.davidbuzatto.jsge.core.utils.CoreUtils;
-import br.com.davidbuzatto.jsge.core.utils.DrawingUtils;
-import br.com.davidbuzatto.jsge.geom.Rectangle;
-import br.com.davidbuzatto.jsge.image.Image;
 
-public class Main extends EngineFrame {
+public class Simulator extends EngineFrame {
 
-    public Main() {
+    public Simulator() {
         
         super(
             800,                 // largura                      / width
@@ -45,7 +41,7 @@ public class Main extends EngineFrame {
     }
 
     public static void main( String[] args ) {
-        new Main();
+        new Simulator();
     }
     
 }
