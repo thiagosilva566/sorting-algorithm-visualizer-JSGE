@@ -92,7 +92,7 @@ public class SortingAlgorithms {
         int max = -1;
         boolean first = true;
         while ( max < 0 || max / t2 != 0 ) {
-// distribuição
+            // distribuição
             for ( int i = 0; i < n; i++ ) {
                 int p = array[i] % t1 / t2;
                 buckets[p][c[p]++] = array[i];
@@ -101,7 +101,7 @@ public class SortingAlgorithms {
                 }
             }
             first = false;
-// coleta
+            // coleta
             int k = 0;
             for ( int i = 0; i < K; i++ ) {
                 for ( int j = 0; j < c[i]; j++ ) {
@@ -113,8 +113,25 @@ public class SortingAlgorithms {
             t1 *= 10;
         }
     }
+    // this method should receive the value of the first element in the array
+    public static void countingSort( int[] array, int maxValue ) {
+        int n = array.length;
+        int[] c = new int[maxValue+1];
+        int[] b = new int[n];
 
-    public static void quickSort() {
-
+        // contagem
+        for ( int i = 0; i < n; i++ ) {
+            c[array[i]]++;
+        }
+        // acumulação
+        for ( int i = 1; i <= maxValue; i++ ) {
+            c[i] += c[i-1];
+        }
+        // reposicionamento
+        for ( int i = n-1; i >= 0; i-- ) {
+            c[array[i]]--;
+            b[c[array[i]]] = array[i];
+        }
+        System.arraycopy( b, 0, array, 0, n );
     }
 }
