@@ -29,11 +29,25 @@ public class SortingAlgorithms {
         }
     }
 
-    public static void ShellSort() {
-
+    public static void shellSort( int[] array ) {
+        int h = 1;
+        int n = array.length;
+        while ( h < n / 3 ) {
+            h = 3 * h + 1; // 1, 4, 13, 40...
+        }
+        while ( h >= 1 ) {
+            for ( int i = h; i < n; i++ ){
+                int j = i;
+                while ( j >= h && array[j-h] > array[j] ) {
+                    swap( array, j-h, j );
+                    j = j - h;
+                }
+            }
+            h = h / 3;
+        }
     }
 
-    public static void MergeSort() {
+    public static void mergeSort() {
 
     }
 
