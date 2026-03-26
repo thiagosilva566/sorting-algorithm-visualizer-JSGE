@@ -18,8 +18,15 @@ public class SortingAlgorithms {
 
     }
 
-    public static void insertionSort() {
-
+    public static void insertionSort( int[] array ) {
+        int n = array.length;
+        for ( int i = 1; i < n; i++ ) {
+            int j = i;
+            while ( j > 0 && array[j-1] > array[j] ) {
+                swap( array, j-1, j );
+                j--;
+            }
+        }
     }
 
     public static void ShellSort() {
