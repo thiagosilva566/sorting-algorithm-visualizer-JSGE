@@ -208,7 +208,7 @@ public class SortingAlgorithms {
             c[array[i]]--;
             b[c[array[i]]] = array[i];
 
-            swap( copyArray, c[array[i]], i );
+            copyArray[c[array[i]]] = array[i];
             sortingArrays.add(ArrayUtils.copy(copyArray));
         }
 
