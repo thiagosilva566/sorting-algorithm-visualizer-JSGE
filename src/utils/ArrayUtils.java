@@ -1,5 +1,6 @@
 package utils;
 
+import br.com.davidbuzatto.jsge.math.MathUtils;
 import sorting.SortingInformation;
 import sorting.TypeComparison;
 
@@ -30,5 +31,13 @@ public class ArrayUtils {
             }
         }
         return max;
+    }
+
+    public static void shuffle( int[] array, int count ) {
+        for  ( int i = 0; i < count; i++ ) {
+            int a = MathUtils.getRandomValue( 0, array.length - 1 );
+            int b = MathUtils.getRandomValue( 0, array.length - 1 );
+            swap( array, a, b );
+        }
     }
 }
