@@ -1,20 +1,12 @@
 package utils;
 
 import br.com.davidbuzatto.jsge.math.MathUtils;
-import sorting.SortingInformation;
-import sorting.TypeComparison;
 
 public class ArrayUtils {
 
-    public static SortingInformation swap(int[] array, int i, int j ) {
+    public static void swap(int[] array, int i, int j ) {
         int temp = array[i];
         array[i] = array[j];
-        array[j] = temp;
-        return new SortingInformation(
-                i,
-                j,
-                TypeComparison.SWAP
-        );
     }
 
     public static int[] copy( int[] array ) {

@@ -11,9 +11,9 @@ public class SortingAlgorithms {
 
     private static Queue<int[]> sortingArrays;
 
-    public static Queue<SortingInformation> selectionSort( int[] array ) {
+    public static Queue<int[]> selectionSort( int[] array ) {
 
-        Queue<SortingInformation> sortingInformation = new LinkedList<>();
+        sortingArrays = new LinkedList<>();
 
         int n = array.length;
         for ( int i = 0; i < n; i++ ) {
@@ -22,52 +22,41 @@ public class SortingAlgorithms {
 
             for ( int j = i + 1; j < n; j++ ) {
 
-                SortingInformation currentSortingInformation = new SortingInformation( min, j );
-
                 if ( array[j] < array[min] ) {
                     min = j;
-                    currentSortingInformation.setTypeComparison(TypeComparison.SUCCESS);
-                } else {
-                    currentSortingInformation.setTypeComparison(TypeComparison.FAILURE);
                 }
 
-                sortingInformation.add(currentSortingInformation);
+                sortingArrays.add( ArrayUtils.copy(array) );
             }
 
-            SortingInformation swapInformation = swap( array, i, min );
-            sortingInformation.add( swapInformation );
+            swap( array, i, min );
+            sortingArrays.add( ArrayUtils.copy(array) );
         }
 
-        return sortingInformation;
+        return sortingArrays;
 
     }
 
-    public static Queue<SortingInformation> insertionSort( int[] array ) {
+    public static Queue<int[]> insertionSort( int[] array ) {
 
-        Queue<SortingInformation> sortingInformation = new LinkedList<>();
+        sortingArrays = new LinkedList<>();
 
         int n = array.length;
         for ( int i = 1; i < n; i++ ) {
             int j = i;
             while ( j > 0 && array[j-1] > array[j] ) {
-                SortingInformation swapInformation = swap( array, j-1, j );
-                sortingInformation.add( swapInformation );
+                swap( array, j-1, j );
+                sortingArrays.add( ArrayUtils.copy(array) );
                 j--;
             }
-            // this may return a negative number index (most likely -1)
-            sortingInformation.add(new SortingInformation(
-                    j,
-                    j - 1,
-                    TypeComparison.FAILURE
-            ));
         }
 
-        return sortingInformation;
+        return sortingArrays;
     }
 
-    public static Queue<SortingInformation> shellSort( int[] array ) {
+    public static Queue<int[]> shellSort( int[] array ) {
 
-        Queue<SortingInformation> sortingInformation = new LinkedList<>();
+        sortingArrays = new LinkedList<>();
 
         int h = 1;
         int n = array.length;
@@ -78,17 +67,15 @@ public class SortingAlgorithms {
             for ( int i = h; i < n; i++ ){
                 int j = i;
                 while ( j >= h && array[j-h] > array[j] ) {
-                    SortingInformation swapInformation = swap( array, j-h, j );
-                    sortingInformation.add( swapInformation );
+                    swap( array, j-h, j );
+                    sortingArrays.add( ArrayUtils.copy(array) );
                     j = j - h;
                 }
-                sortingInformation.add(new SortingInformation( j,
-                        j - h, TypeComparison.FAILURE ) );
             }
             h = h / 3;
         }
 
-        return sortingInformation;
+        return sortingArrays;
     }
 
     public static Queue<int[]> mergeSort( int[] array ) {
