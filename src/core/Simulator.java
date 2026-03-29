@@ -1,4 +1,4 @@
-package template;
+package core;
 
 import br.com.davidbuzatto.jsge.core.engine.EngineFrame;
 
