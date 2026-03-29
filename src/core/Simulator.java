@@ -21,8 +21,8 @@ public class Simulator extends EngineFrame {
 
     private int[] array;
 
-    private List<SortingInformation> sortingInformations;
-    private int sortingInformationsCurrentIndex;
+    private List<SortingInformation> sortingInformation;
+    private int sortingInformationCurrentIndex;
 
     private double xIni;
     private double yIni;
@@ -60,7 +60,7 @@ public class Simulator extends EngineFrame {
         // 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
         array = new int[]{ 10, 7, 9, 8, 4, 1, 2, 5, 3, 6 };
         int[] copyArray = ArrayUtils.copy( array );
-        sortingInformations = SortingAlgorithms.selectionSort( copyArray );
+        sortingInformation = SortingAlgorithms.selectionSort( copyArray );
 
         gap = 10;
         xIni = getScreenWidth() / 2.0 - ((array.length ) * GRID_SIZE) / 2;
@@ -79,9 +79,9 @@ public class Simulator extends EngineFrame {
 
         } else if ( animationStatus == AnimationStatus.STOPPED ) {
 
-            if ( counter >= 1 && sortingInformationsCurrentIndex < sortingInformations.size() ) {
+            if ( counter >= 1 && sortingInformationCurrentIndex < sortingInformation.size() ) {
 
-                SortingInformation sortingInformation = sortingInformations.get( sortingInformationsCurrentIndex );
+                SortingInformation sortingInformation = this.sortingInformation.get(sortingInformationCurrentIndex);
 
                 switch (sortingInformation.getTypeComparison()) {
                     case SWAP -> {
@@ -112,7 +112,7 @@ public class Simulator extends EngineFrame {
                 }
 
                 animationStatus = AnimationStatus.RUNNING;
-                sortingInformationsCurrentIndex++;
+                sortingInformationCurrentIndex++;
                 counter = 0;
             }
 
