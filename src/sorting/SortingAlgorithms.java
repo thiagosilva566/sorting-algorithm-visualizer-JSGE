@@ -9,7 +9,7 @@ import static utils.ArrayUtils.swap;
 
 public class SortingAlgorithms {
 
-    private static List<int[]> mergeSortArrays;
+    private static List<int[]> sortingArrays;
 
     public static List<SortingInformation> selectionSort( int[] array ) {
 
@@ -95,14 +95,14 @@ public class SortingAlgorithms {
         int n = array.length;
         int[] tempMS = new int[n];
 
-        mergeSortArrays = new ArrayList<>( n );
-        mergeSortArrays.add(ArrayUtils.copy(array));
+        sortingArrays = new ArrayList<>( n );
+        sortingArrays.add(ArrayUtils.copy(array));
 
         mergeSort( array, 0, n - 1, tempMS );
 
-        mergeSortArrays.add(ArrayUtils.copy(array));
+        sortingArrays.add(ArrayUtils.copy(array));
 
-        return mergeSortArrays;
+        return sortingArrays;
     }
 
     private static void mergeSort( int[] array, int start, int end, int[] tempMS ) {
@@ -132,12 +132,16 @@ public class SortingAlgorithms {
                 array[k] = tempMS[i++];
             }
 
-            mergeSortArrays.add(ArrayUtils.copy(array));
+            sortingArrays.add(ArrayUtils.copy(array));
 
         }
     }
 
-    public static void bucketSort( int[] array ) {
+    public static List<int[]> bucketSort( int[] array ) {
+
+        sortingArrays =  new ArrayList<>( array.length );
+        sortingArrays.add(ArrayUtils.copy(array));
+
         int n = array.length;
         final int K = 10;
         int[][] buckets = new int[K][n];
@@ -161,12 +165,15 @@ public class SortingAlgorithms {
             for ( int i = 0; i < K; i++ ) {
                 for ( int j = 0; j < c[i]; j++ ) {
                     array[k++] = buckets[i][j];
+                    sortingArrays.add(ArrayUtils.copy(array));
                 }
                 c[i] = 0;
             }
             t2 = t1;
             t1 *= 10;
         }
+
+        return  sortingArrays;
     }
     // this method should receive the value of the first element in the array
     public static void countingSort( int[] array, int maxValue ) {
