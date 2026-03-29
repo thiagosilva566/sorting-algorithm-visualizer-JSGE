@@ -1,11 +1,15 @@
 package sorting;
 
+import utils.ArrayUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import static utils.ArrayUtils.swap;
 
 public class SortingAlgorithms {
+
+    private static List<int[]> mergeSortArrays;
 
     public static List<SortingInformation> selectionSort( int[] array ) {
 
@@ -87,10 +91,18 @@ public class SortingAlgorithms {
         return sortingInformation;
     }
 
-    public static void mergeSort( int[] array ) {
+    public static List<int[]> mergeSort( int[] array ) {
         int n = array.length;
         int[] tempMS = new int[n];
+
+        mergeSortArrays = new ArrayList<>( n );
+        mergeSortArrays.add(ArrayUtils.copy(array));
+
         mergeSort( array, 0, n - 1, tempMS );
+
+        mergeSortArrays.add(ArrayUtils.copy(array));
+
+        return mergeSortArrays;
     }
 
     private static void mergeSort( int[] array, int start, int end, int[] tempMS ) {
@@ -119,6 +131,9 @@ public class SortingAlgorithms {
             } else {
                 array[k] = tempMS[i++];
             }
+
+            mergeSortArrays.add(ArrayUtils.copy(array));
+
         }
     }
 
