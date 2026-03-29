@@ -1,48 +1,31 @@
 package core;
 
 import br.com.davidbuzatto.jsge.core.engine.EngineFrame;
-import br.com.davidbuzatto.jsge.geom.Rectangle;
+import br.com.davidbuzatto.jsge.geom.RoundRectangle;
 import br.com.davidbuzatto.jsge.math.Vector2;
 import sorting.SortingAlgorithms;
-import sorting.SortingInformation;
 import utils.ArrayUtils;
 
-import java.awt.*;
-import java.util.List;
+import java.util.Queue;
 
 public class Simulator extends EngineFrame {
 
-    private enum AnimationStatus {
-        RUNNING,
-        STOPPED,
-    }
-
-    private static final int GRID_SIZE = 40;
-
     private int[] array;
+    private int[] currentArray;
 
-    private List<SortingInformation> sortingInformation;
-    private int sortingInformationCurrentIndex;
+    Queue<int[]> sortingArrays;
 
-    private double xIni;
-    private double yIni;
-    private double gap;
+    private RoundRectangle sortingContainer;
+    private Vector2 containerGap;
 
-    private int currentElementIndex;
-    private int currentComparatorIndex;
-
-    private double counter;
-    private AnimationStatus animationStatus;
-    private Rectangle currentElement;
-    private Rectangle targetElement;
-    private Rectangle currentComparator;
-    private Rectangle targetComparator;
+    private Vector2 gapBetweenElements;
+    private Vector2 sizeUnity;
 
     public Simulator() {
         
         super(
             1600,                 // largura                      / width
-            900,                 // algura                       / height
+            900,                 // algura ,                      / height
             "Window Title",      // título                       / title
             60,                  // quadros por segundo desejado / target FPS
             true,                // suavização                   / antialiasing
@@ -57,67 +40,53 @@ public class Simulator extends EngineFrame {
 
     @Override
     public void create() {
-        // 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-        array = new int[]{ 10, 7, 9, 8, 4, 1, 2, 5, 3, 6 };
-        int[] copyArray = ArrayUtils.copy( array );
-        sortingInformation = SortingAlgorithms.selectionSort( copyArray );
 
-        gap = 10;
-        xIni = getScreenWidth() / 2.0 - ((array.length ) * GRID_SIZE) / 2;
-        yIni = getScreenHeight() / 2.0 + (GRID_SIZE * ArrayUtils.getMaxElement(array)) / 2;
+        int n = 100;
+        array = new int[n];
+        for ( int i = 1; i <= n; i++ ) {
+            array[i - 1] = i;
+        }
+        ArrayUtils.shuffle( array, 200 );
+        currentArray = ArrayUtils.copy( array );
 
-        animationStatus = AnimationStatus.STOPPED;
+        containerGap = new Vector2(
+                200,
+                200
+        );
+
+        gapBetweenElements = new Vector2(
+                -8.0/90 * array.length + 98/9.0,
+                20
+        );
+
+        int biggerElement = ArrayUtils.getMaxElement(array);
+        sizeUnity = new Vector2(
+                (getScreenWidth() -
+                        ((((containerGap.x + gapBetweenElements.x) * 2) +
+                                gapBetweenElements.x * array.length) - gapBetweenElements.x)) / array.length,
+                (getScreenHeight() - (containerGap.y + gapBetweenElements.y) * 2) / biggerElement
+        );
+
+        sortingContainer = new RoundRectangle(
+                containerGap.x,
+                containerGap.y,
+                getScreenWidth() - 2 *  containerGap.x,
+                getScreenHeight() - 2 * containerGap.y,
+                20
+        );
 
     }
 
     @Override
     public void update( double delta ) {
 
-        counter += delta;
-
-        if ( animationStatus == AnimationStatus.RUNNING ) {
-
-        } else if ( animationStatus == AnimationStatus.STOPPED ) {
-
-            if ( counter >= 1 && sortingInformationCurrentIndex < sortingInformation.size() ) {
-
-                SortingInformation sortingInformation = this.sortingInformation.get(sortingInformationCurrentIndex);
-
-                switch (sortingInformation.getTypeComparison()) {
-                    case SWAP -> {
-                        ArrayUtils.swap(
-                                array,
-                                sortingInformation.getCurrentElement(),
-                                sortingInformation.getCurrentComparator()
-                        );
-                    }
-                    case FAILURE -> {
-                        currentElementIndex = sortingInformation.getCurrentElement();
-                        currentComparatorIndex = sortingInformation.getCurrentComparator();
-                        if ( currentComparator == null ) {
-                            currentComparator = getElementRectangle( currentComparatorIndex );
-                        } else {
-                            targetComparator = getElementRectangle( currentComparatorIndex );
-                        }
-                    }
-                    case SUCCESS -> {
-                        currentElementIndex = sortingInformation.getCurrentElement();
-                        currentComparatorIndex = sortingInformation.getCurrentComparator();
-                        if ( currentElement == null ) {
-                            currentElement = getElementRectangle( currentComparatorIndex );
-                        } else {
-                            targetElement = getElementRectangle( currentComparatorIndex );
-                        }
-                    }
-                }
-
-                animationStatus = AnimationStatus.RUNNING;
-                sortingInformationCurrentIndex++;
-                counter = 0;
-            }
-
+        if ( isKeyPressed(KEY_S) )  {
+            sortingArrays = SortingAlgorithms.mergeSort(ArrayUtils.copy(array));
         }
 
+        if ( sortingArrays != null && !sortingArrays.isEmpty() ) {
+            currentArray = sortingArrays.poll();
+        }
 
     }
 
@@ -126,63 +95,26 @@ public class Simulator extends EngineFrame {
         
         clearBackground( WHITE );
 
-        for ( int i = 0; i < array.length; i++ ) {
-            int n = array[i];
-            Color color = Color.LIGHT_GRAY;
+        setStrokeLineWidth(2);
 
-            if ( i == currentElementIndex ) {
-                color = Color.GREEN;
-            } else if ( i == currentComparatorIndex ) {
-                color = Color.RED;
-            }
+        drawRoundRectangle( sortingContainer, BLACK );
 
-            Vector2 coordinate = getElementCoordinates(i);
-
-            double width = GRID_SIZE;
-            double height = GRID_SIZE * n;
-
+        for ( int i = 0; i < currentArray.length; i++ ) {
+            int n = currentArray[i];
+            double yIni = containerGap.y + sortingContainer.height - gapBetweenElements.y;
             fillRectangle(
-                    coordinate,
-                    width,
-                    height,
+                    containerGap.x + gapBetweenElements.x + i * (sizeUnity.x + gapBetweenElements.x),
+                    yIni - n * sizeUnity.y,
+                    sizeUnity.x,
+                    sizeUnity.y * n,
                     LIGHTGRAY
             );
-
-            if ( i == currentElementIndex || i ==  currentComparatorIndex ) {
-
-                setStrokeLineWidth(3);
-
-                drawRectangle(
-                        coordinate,
-                        width,
-                        height,
-                        color
-                );
-
-                setStrokeLineWidth(1);
-            }
         }
-        
+
         drawFPS( 20, 20 );
     
     }
 
-    private Vector2 getElementCoordinates( int index ) {
-        return new Vector2(
-                xIni + ( GRID_SIZE + 10 ) * index,
-                yIni - GRID_SIZE * array[index]
-        );
-    }
-
-    private Rectangle getElementRectangle( int index ) {
-        Vector2 coordinate = getElementCoordinates( index );
-        return new Rectangle(
-                coordinate.x,
-                coordinate.y,
-                GRID_SIZE,
-                GRID_SIZE * array[index]
-        );
-    }
 
     public static void main( String[] args ) {
         new Simulator();
