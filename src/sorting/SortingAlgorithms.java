@@ -175,11 +175,25 @@ public class SortingAlgorithms {
 
         return  sortingArrays;
     }
-    // this method should receive the value of the first element in the array
-    public static void countingSort( int[] array, int maxValue ) {
+
+    public static List<int[]> countingSort( int[] array ) {
+        return countingSort( array, ArrayUtils.getMaxElement(array) );
+    }
+
+    /*
+    * this method should receive the value of the first element in the array.
+    * The way the information about the sorting is returned does not accurately
+    * reflect this method.
+    */
+
+    private static List<int[]> countingSort( int[] array, int maxValue ) {
         int n = array.length;
         int[] c = new int[maxValue+1];
         int[] b = new int[n];
+
+        sortingArrays =  new ArrayList<>( array.length );
+        sortingArrays.add(ArrayUtils.copy(array));
+        int[] copyArray = ArrayUtils.copy(array);
 
         // contagem
         for ( int i = 0; i < n; i++ ) {
@@ -193,7 +207,13 @@ public class SortingAlgorithms {
         for ( int i = n-1; i >= 0; i-- ) {
             c[array[i]]--;
             b[c[array[i]]] = array[i];
+
+            swap( copyArray, c[array[i]], i );
+            sortingArrays.add(ArrayUtils.copy(copyArray));
         }
+
         System.arraycopy( b, 0, array, 0, n );
+
+        return sortingArrays;
     }
 }
