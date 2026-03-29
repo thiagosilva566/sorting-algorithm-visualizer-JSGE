@@ -15,4 +15,20 @@ public class ArrayUtils {
                 TypeComparison.SWAP
         );
     }
+
+    public static int[] copy( int[] array ) {
+        int[] copy = new int[array.length];
+        System.arraycopy( array, 0, copy, 0, array.length );
+        return copy;
+    }
+
+    public static int getMaxElement( int[] array ) {
+        int max = Integer.MIN_VALUE;
+        for ( int i = 0; i < array.length; i++ ) {
+            if ( array[i] > max ) {
+                max = array[i];
+            }
+        }
+        return max;
+    }
 }
