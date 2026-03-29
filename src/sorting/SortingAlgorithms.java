@@ -1,20 +1,40 @@
 package sorting;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static utils.ArrayUtils.swap;
 
 public class SortingAlgorithms {
 
-    public static void selectionSort( int[] array ) {
+    public static List<SortingInformation> selectionSort( int[] array ) {
+
+        List<SortingInformation> sortingInformations = new ArrayList<>();
+
         int n = array.length;
         for ( int i = 0; i < n; i++ ) {
+
             int min = i;
+
             for ( int j = i + 1; j < n; j++ ) {
+
+                SortingInformation sortingInformation = new SortingInformation( min, j );
+
                 if ( array[j] < array[min] ) {
                     min = j;
+                    sortingInformation.setTypeComparison(TypeComparison.SUCCESS);
+                } else {
+                    sortingInformation.setTypeComparison(TypeComparison.FAILURE);
                 }
+
+                sortingInformations.add(sortingInformation);
             }
-            swap( array, i, min );
+
+            SortingInformation swapInformation = swap( array, i, min );
+            sortingInformations.add( swapInformation );
         }
+
+        return sortingInformations;
 
     }
 
