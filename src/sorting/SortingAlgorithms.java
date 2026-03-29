@@ -38,15 +38,27 @@ public class SortingAlgorithms {
 
     }
 
-    public static void insertionSort( int[] array ) {
+    public static List<SortingInformation> insertionSort( int[] array ) {
+
+        List<SortingInformation> sortingInformations = new ArrayList<>();
+
         int n = array.length;
         for ( int i = 1; i < n; i++ ) {
             int j = i;
             while ( j > 0 && array[j-1] > array[j] ) {
-                swap( array, j-1, j );
+                SortingInformation swapInformation = swap( array, j-1, j );
+                sortingInformations.add( swapInformation );
                 j--;
             }
+            // this may return a negative number index (most likely -1)
+            sortingInformations.add(new SortingInformation(
+                    j,
+                    j - 1,
+                    TypeComparison.FAILURE
+            ));
         }
+
+        return sortingInformations;
     }
 
     public static void shellSort( int[] array ) {
