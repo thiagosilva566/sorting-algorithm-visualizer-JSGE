@@ -9,7 +9,7 @@ public class SortingAlgorithms {
 
     public static List<SortingInformation> selectionSort( int[] array ) {
 
-        List<SortingInformation> sortingInformations = new ArrayList<>();
+        List<SortingInformation> sortingInformation = new ArrayList<>();
 
         int n = array.length;
         for ( int i = 0; i < n; i++ ) {
@@ -18,50 +18,53 @@ public class SortingAlgorithms {
 
             for ( int j = i + 1; j < n; j++ ) {
 
-                SortingInformation sortingInformation = new SortingInformation( min, j );
+                SortingInformation currentSortingInformation = new SortingInformation( min, j );
 
                 if ( array[j] < array[min] ) {
                     min = j;
-                    sortingInformation.setTypeComparison(TypeComparison.SUCCESS);
+                    currentSortingInformation.setTypeComparison(TypeComparison.SUCCESS);
                 } else {
-                    sortingInformation.setTypeComparison(TypeComparison.FAILURE);
+                    currentSortingInformation.setTypeComparison(TypeComparison.FAILURE);
                 }
 
-                sortingInformations.add(sortingInformation);
+                sortingInformation.add(currentSortingInformation);
             }
 
             SortingInformation swapInformation = swap( array, i, min );
-            sortingInformations.add( swapInformation );
+            sortingInformation.add( swapInformation );
         }
 
-        return sortingInformations;
+        return sortingInformation;
 
     }
 
     public static List<SortingInformation> insertionSort( int[] array ) {
 
-        List<SortingInformation> sortingInformations = new ArrayList<>();
+        List<SortingInformation> sortingInformation = new ArrayList<>();
 
         int n = array.length;
         for ( int i = 1; i < n; i++ ) {
             int j = i;
             while ( j > 0 && array[j-1] > array[j] ) {
                 SortingInformation swapInformation = swap( array, j-1, j );
-                sortingInformations.add( swapInformation );
+                sortingInformation.add( swapInformation );
                 j--;
             }
             // this may return a negative number index (most likely -1)
-            sortingInformations.add(new SortingInformation(
+            sortingInformation.add(new SortingInformation(
                     j,
                     j - 1,
                     TypeComparison.FAILURE
             ));
         }
 
-        return sortingInformations;
+        return sortingInformation;
     }
 
-    public static void shellSort( int[] array ) {
+    public static List<SortingInformation> shellSort( int[] array ) {
+
+        List<SortingInformation> sortingInformation = new ArrayList<>();
+
         int h = 1;
         int n = array.length;
         while ( h < n / 3 ) {
@@ -71,12 +74,17 @@ public class SortingAlgorithms {
             for ( int i = h; i < n; i++ ){
                 int j = i;
                 while ( j >= h && array[j-h] > array[j] ) {
-                    swap( array, j-h, j );
+                    SortingInformation swapInformation = swap( array, j-h, j );
+                    sortingInformation.add( swapInformation );
                     j = j - h;
                 }
+                sortingInformation.add(new SortingInformation( j,
+                        j - h, TypeComparison.FAILURE ) );
             }
             h = h / 3;
         }
+
+        return sortingInformation;
     }
 
     public static void mergeSort( int[] array ) {
