@@ -2,18 +2,18 @@ package sorting;
 
 import utils.ArrayUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static utils.ArrayUtils.swap;
 
 public class SortingAlgorithms {
 
-    private static List<int[]> sortingArrays;
+    private static Queue<int[]> sortingArrays;
 
-    public static List<SortingInformation> selectionSort( int[] array ) {
+    public static Queue<SortingInformation> selectionSort( int[] array ) {
 
-        List<SortingInformation> sortingInformation = new ArrayList<>();
+        Queue<SortingInformation> sortingInformation = new LinkedList<>();
 
         int n = array.length;
         for ( int i = 0; i < n; i++ ) {
@@ -42,9 +42,9 @@ public class SortingAlgorithms {
 
     }
 
-    public static List<SortingInformation> insertionSort( int[] array ) {
+    public static Queue<SortingInformation> insertionSort( int[] array ) {
 
-        List<SortingInformation> sortingInformation = new ArrayList<>();
+        Queue<SortingInformation> sortingInformation = new LinkedList<>();
 
         int n = array.length;
         for ( int i = 1; i < n; i++ ) {
@@ -65,9 +65,9 @@ public class SortingAlgorithms {
         return sortingInformation;
     }
 
-    public static List<SortingInformation> shellSort( int[] array ) {
+    public static Queue<SortingInformation> shellSort( int[] array ) {
 
-        List<SortingInformation> sortingInformation = new ArrayList<>();
+        Queue<SortingInformation> sortingInformation = new LinkedList<>();
 
         int h = 1;
         int n = array.length;
@@ -91,11 +91,11 @@ public class SortingAlgorithms {
         return sortingInformation;
     }
 
-    public static List<int[]> mergeSort( int[] array ) {
+    public static Queue<int[]> mergeSort( int[] array ) {
         int n = array.length;
         int[] tempMS = new int[n];
 
-        sortingArrays = new ArrayList<>( n );
+        sortingArrays = new LinkedList<>();
         sortingArrays.add(ArrayUtils.copy(array));
 
         mergeSort( array, 0, n - 1, tempMS );
@@ -137,9 +137,9 @@ public class SortingAlgorithms {
         }
     }
 
-    public static List<int[]> bucketSort( int[] array ) {
+    public static Queue<int[]> bucketSort( int[] array ) {
 
-        sortingArrays =  new ArrayList<>( array.length );
+        sortingArrays =  new LinkedList<>();
         sortingArrays.add(ArrayUtils.copy(array));
 
         int n = array.length;
@@ -176,7 +176,7 @@ public class SortingAlgorithms {
         return  sortingArrays;
     }
 
-    public static List<int[]> countingSort( int[] array ) {
+    public static Queue<int[]> countingSort( int[] array ) {
         return countingSort( array, ArrayUtils.getMaxElement(array) );
     }
 
@@ -186,12 +186,12 @@ public class SortingAlgorithms {
     * reflect this method.
     */
 
-    private static List<int[]> countingSort( int[] array, int maxValue ) {
+    private static Queue<int[]> countingSort( int[] array, int maxValue ) {
         int n = array.length;
         int[] c = new int[maxValue+1];
         int[] b = new int[n];
 
-        sortingArrays =  new ArrayList<>( array.length );
+        sortingArrays =  new LinkedList<>();
         sortingArrays.add(ArrayUtils.copy(array));
         int[] copyArray = ArrayUtils.copy(array);
 
