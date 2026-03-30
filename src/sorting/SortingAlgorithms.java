@@ -1,5 +1,7 @@
 package sorting;
 
+import sorting.information.SortingInformation;
+import sorting.information.bucket.BucketSortInformation;
 import utils.ArrayUtils;
 
 import java.util.LinkedList;
@@ -124,10 +126,9 @@ public class SortingAlgorithms {
         }
     }
 
-    public static Queue<int[]> bucketSort( int[] array ) {
+    public static Queue<SortingInformation> bucketSort( int[] array ) {
 
-        sortingArrays =  new LinkedList<>();
-        sortingArrays.add(ArrayUtils.copy(array));
+        Queue<SortingInformation> informationQueue = new LinkedList<>();
 
         int n = array.length;
         final int K = 10;
@@ -142,6 +143,11 @@ public class SortingAlgorithms {
             for ( int i = 0; i < n; i++ ) {
                 int p = array[i] % t1 / t2;
                 buckets[p][c[p]++] = array[i];
+
+                informationQueue.add(
+                        BucketSortInformation.putInBucket( i, p, t1 )
+                );
+
                 if ( first ) {
                     max = max < array[i] ? array[i] : max;
                 }
@@ -152,7 +158,9 @@ public class SortingAlgorithms {
             for ( int i = 0; i < K; i++ ) {
                 for ( int j = 0; j < c[i]; j++ ) {
                     array[k++] = buckets[i][j];
-                    sortingArrays.add(ArrayUtils.copy(array));
+                    informationQueue.add(
+                            BucketSortInformation.collect( k-1, buckets[i][j] )
+                    );
                 }
                 c[i] = 0;
             }
@@ -160,7 +168,7 @@ public class SortingAlgorithms {
             t1 *= 10;
         }
 
-        return  sortingArrays;
+        return  informationQueue;
     }
 
     public static Queue<int[]> countingSort( int[] array ) {
