@@ -1,6 +1,7 @@
 package core;
 
 import br.com.davidbuzatto.jsge.core.engine.EngineFrame;
+import br.com.davidbuzatto.jsge.geom.Rectangle;
 import br.com.davidbuzatto.jsge.geom.RoundRectangle;
 import br.com.davidbuzatto.jsge.imgui.GuiButton;
 import br.com.davidbuzatto.jsge.imgui.GuiComponent;
@@ -21,6 +22,7 @@ public class Simulator extends EngineFrame {
     private int[] array;
 
     Queue<int[]> sortingArrays;
+    private List<Element> elementList;
 
     private RoundRectangle sortingContainer;
     private RoundRectangle controlsContainer;
@@ -44,6 +46,7 @@ public class Simulator extends EngineFrame {
     private Color borderContainerColor;
     private Color backgroundComponentColor;
     private Color borderComponentColor;
+    private Color defaultElementColor;
 
     public Simulator() {
         
@@ -184,10 +187,19 @@ public class Simulator extends EngineFrame {
         containerColor = Color.decode("#6272A4" );
         borderContainerColor = Color.decode("#FF79C6" );
         backgroundComponentColor = LIGHTGRAY;
+        defaultElementColor = LIGHTGRAY;
 
         for ( GuiComponent component : components ) {
             component.setBackgroundColor(backgroundComponentColor);
         }
+
+        /*
+        * That's there because collectToDraw() needs calculateSizeUnity() and
+        * calculateSizeUnity() needs the container's dimensions initialized
+        */
+
+        calculateSizeUnity();
+        collectToDraw();
 
     }
 
@@ -230,17 +242,24 @@ public class Simulator extends EngineFrame {
                 startSortButton.setText("Skip");
 
                 if  ( startSortButton.isMousePressed() ) {
+                    // have to update together
                     while ( !sortingArrays.isEmpty() ) {
                         array = sortingArrays.poll();
                     }
+                    collectToDraw();
                 }
             }
         }
 
-
+        if ( shuffleButton.isMousePressed() ) {
+            // have to update together
+            ArrayUtils.shuffle(array, 100);
+            collectToDraw();
+        }
 
         if ( numberElementsList.getSelectedItemText() != null &&
                 array.length != Integer.parseInt(numberElementsList.getSelectedItemText()) ) {
+            // have to update together
             int n = Integer.parseInt(numberElementsList.getSelectedItemText());
             array = new int[n];
             for ( int i = 0; i < n; i++ ) {
@@ -248,6 +267,7 @@ public class Simulator extends EngineFrame {
             }
             ArrayUtils.shuffle( array, 200 );
             calculateSizeUnity();
+            collectToDraw();
         }
 
         if ( sortingArrays != null && !sortingArrays.isEmpty() ) {
@@ -272,17 +292,8 @@ public class Simulator extends EngineFrame {
         drawRoundRectangle( sortingContainer, borderContainerColor );
         setStrokeLineWidth(WIDTH);
 
-        for ( int i = 0; i < array.length; i++ ) {
-            int n = array[i];
-            double xIni = sortingContainer.x + gapBetweenArrayElements.x;
-            double yIni = sortingContainer.y + sortingContainer.height - gapBetweenArrayElements.y;
-            fillRectangle(
-                    xIni + i * (sizeUnity.x + gapBetweenArrayElements.x),
-                    yIni - n * sizeUnity.y,
-                    sizeUnity.x,
-                    sizeUnity.y * n,
-                    LIGHTGRAY
-            );
+        for ( Element element : elementList ) {
+            fillRectangle( element.rectangle, element.color );
         }
 
         for ( GuiComponent component : components ) {
@@ -308,6 +319,26 @@ public class Simulator extends EngineFrame {
                 (sortingContainer.height - 2 * gapBetweenArrayElements.y) / biggerElement
         );
     }
+
+    private void collectToDraw() {
+        elementList = new ArrayList<>();
+        for ( int i = 0; i < array.length; i++ ) {
+            int n = array[i];
+            double xIni = sortingContainer.x + gapBetweenArrayElements.x;
+            double yIni = sortingContainer.y + sortingContainer.height - gapBetweenArrayElements.y;
+            Rectangle rectangle = new Rectangle(
+                    xIni + i * (sizeUnity.x + gapBetweenArrayElements.x),
+                    yIni - n * sizeUnity.y,
+                    sizeUnity.x,
+                    sizeUnity.y * n
+            );
+            Element element = new  Element();
+            element.rectangle = rectangle;
+            element.color = defaultElementColor;
+            elementList.add(element);
+        }
+    }
+
 
 
     public static void main( String[] args ) {
