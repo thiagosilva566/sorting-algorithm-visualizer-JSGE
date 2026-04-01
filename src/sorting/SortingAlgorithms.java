@@ -190,15 +190,15 @@ public class SortingAlgorithms {
         sortingArrays.add(ArrayUtils.copy(array));
         int[] copyArray = ArrayUtils.copy(array);
 
-        // contagem
+        // count
         for ( int i = 0; i < n; i++ ) {
             c[array[i]]++;
         }
-        // acumulação
+        // accumulation
         for ( int i = 1; i <= maxValue; i++ ) {
             c[i] += c[i-1];
         }
-        // reposicionamento
+        // repositioning
         for ( int i = n-1; i >= 0; i-- ) {
             c[array[i]]--;
             b[c[array[i]]] = array[i];

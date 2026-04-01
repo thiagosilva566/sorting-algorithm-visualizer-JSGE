@@ -58,16 +58,16 @@ public class Simulator extends EngineFrame {
     public Simulator() {
         
         super(
-            1600,                 // largura                      / width
-            900,                 // algura ,                      / height
-            "Sorting Visualizer",      // título                       / title
-            60,                  // quadros por segundo desejado / target FPS
-            true,                // suavização                   / antialiasing
-            false,               // redimensionável              / resizable
-            false,               // tela cheia                   / full screen
-            false,               // sem decoração                / undecorated
-            false,               // sempre no topo               / always on top
-            false                // fundo invisível              / invisible background
+            1600,
+            900,
+            "Sorting Visualizer",
+            60,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
         );
         
     }
@@ -254,7 +254,7 @@ public class Simulator extends EngineFrame {
                     collectToDraw();
                 }
 
-                if ( counter > 1 ){
+                if ( counter > 0.016 ){
                     if (sortingArrays != null && !sortingArrays.isEmpty()) {
                         updateSortingArrays();
                     } else if (sortingInformationQueue != null && !sortingInformationQueue.isEmpty()) {
@@ -278,8 +278,21 @@ public class Simulator extends EngineFrame {
             // have to update together
             int n = Integer.parseInt(numberElementsList.getSelectedItemText());
             array = new int[n];
-            for ( int i = 0; i < n; i++ ) {
-                array[i] = i + 1;
+            switch (sortingAlgorithmList.getSelectedItemText()) {
+                case "CountingSort" -> {
+                    int a = 1;
+                    for ( int i = 0; i < n; i++ ) {
+                        array[i] = a++;
+                        if ( a > 10 ) {
+                            a = 1;
+                        }
+                    }
+                }
+                default -> {
+                    for ( int i = 0; i < n; i++ ) {
+                        array[i] = i + 1;
+                    }
+                }
             }
             ArrayUtils.shuffle( array, 200 );
             calculateSizeUnity();
