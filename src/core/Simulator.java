@@ -12,32 +12,40 @@ import sorting.information.SortingInformation;
 import sorting.information.bucket.BucketSortCollection;
 import sorting.information.bucket.BucketSortDistribution;
 import sorting.information.bucket.BucketSortInformation;
+import sorting.information.count.CountingSortAccumulation;
+import sorting.information.count.CountingSortCount;
+import sorting.information.count.CountingSortInformation;
+import sorting.information.count.CountingSortRepositioning;
 import utils.ArrayUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 
 public class Simulator extends EngineFrame {
+
+    private static final int SHUFFLE_COUNT = 200;
 
     private SimulatorStatus simulatorStatus;
 
     private int[] array;
 
     Queue<int[]> sortingArrays;
+    private int[] cumulationArray;
     private Queue<SortingInformation> sortingInformationQueue;
     private List<Element> elementList;
 
     private RoundRectangle sortingContainer;
     private RoundRectangle controlsContainer;
+    private RoundRectangle countSortContainer;
     private double roundness;
     private Vector2 containersGap;
 
     private List<GuiComponent> components;
     private int numberComponents;
     private GuiDropdownList sortingAlgorithmList;
-    private GuiDropdownList numberElementsList;
     private GuiButton startSortButton;
     private GuiButton shuffleButton;
 
@@ -54,6 +62,7 @@ public class Simulator extends EngineFrame {
     private Color defaultElementColor;
 
     private double counter;
+    private double timeToAdvance;
 
     public Simulator() {
         
@@ -77,7 +86,7 @@ public class Simulator extends EngineFrame {
 
         simulatorStatus = SimulatorStatus.STOPPED;
 
-        int n = 10;
+        int n = 100;
         array = new int[n];
         for ( int i = 1; i <= n; i++ ) {
             array[i - 1] = i;
@@ -107,6 +116,14 @@ public class Simulator extends EngineFrame {
                 roundness
         );
 
+        countSortContainer = new RoundRectangle(
+                containersGap.x + sortingContainer.width + 20,
+                sortingContainer.y,
+                160,
+                (getScreenHeight() - 3 * containersGap.y) * 0.7,
+                roundness
+        );
+
         gapBetweenArrayElements = new Vector2(
                 -8.0/90 * array.length + 98/9.0,
                 20
@@ -118,7 +135,7 @@ public class Simulator extends EngineFrame {
                 (sortingContainer.height - 2 * gapBetweenArrayElements.y) / biggerElement
         );
 
-        numberComponents = 4;
+        numberComponents = 3;
 
         gapBetweenComponents = new Vector2(
                 50,
@@ -150,22 +167,8 @@ public class Simulator extends EngineFrame {
                 this
         );
 
-        numberElementsList = new GuiDropdownList(
-                xIni + gapX,
-                yIni,
-                componentsSize.x,
-                componentsSize.y,
-                List.of(
-                        "10",
-                        "20",
-                        "50",
-                        "100"
-                ),
-                this
-        );
-
         startSortButton = new GuiButton(
-                xIni + 2 * gapX,
+                xIni + 1 * gapX,
                 yIni,
                 componentsSize.x,
                 componentsSize.y,
@@ -174,7 +177,7 @@ public class Simulator extends EngineFrame {
         );
 
         shuffleButton = new GuiButton(
-                xIni + 3 * gapX,
+                xIni + 2 * gapX,
                 yIni,
                 componentsSize.x,
                 componentsSize.y,
@@ -182,11 +185,8 @@ public class Simulator extends EngineFrame {
                 this
         );
 
-
-
         components = new ArrayList<>();
         components.add(sortingAlgorithmList);
-        components.add(numberElementsList);
         components.add(startSortButton);
         components.add(shuffleButton);
 
@@ -216,13 +216,11 @@ public class Simulator extends EngineFrame {
         for ( GuiComponent component : components ) {
             component.update( delta );
         }
-        System.out.printf("counter: %f, delta: %f, counter + delta: %f\n", counter, delta, counter + delta);
         counter += delta;
 
         switch( simulatorStatus ) {
             case STOPPED -> {
                 sortingAlgorithmList.setEnabled(true);
-                numberElementsList.setEnabled(true);
                 shuffleButton.setEnabled(true);
                 startSortButton.setText("Start");
 
@@ -234,17 +232,41 @@ public class Simulator extends EngineFrame {
                         case "ShellSort" -> sortingArrays = SortingAlgorithms.shellSort(arrayCopy);
                         case "MergeSort" -> sortingArrays = SortingAlgorithms.mergeSort(arrayCopy);
                         case "BucketSort" -> sortingInformationQueue = SortingAlgorithms.bucketSort(arrayCopy);
-                        case "CountingSort" -> sortingArrays = SortingAlgorithms.countingSort(arrayCopy);
+                        case "CountingSort" -> {
+                            sortingInformationQueue = SortingAlgorithms.countingSort(arrayCopy);
+                        }
                     }
                     simulatorStatus = SimulatorStatus.RUNNING_SORTING;
                 }
 
+                if ( sortingAlgorithmList.isDropdownListVisible() ) {
+                    simulatorStatus = SimulatorStatus.SELECTING_SORT_TYPE;
+                }
+
+            }
+            case SELECTING_SORT_TYPE -> {
+                if ( !sortingAlgorithmList.isDropdownListVisible() ) {
+                    switch (sortingAlgorithmList.getSelectedItemText()) {
+                        case "MergeSort" -> generateArray( 256, 256 );
+                        case "CountingSort" -> {
+                            generateArray(100, 5);
+                            cumulationArray = new int[ArrayUtils.getMaxElement(array) + 1];
+                        }
+                        default -> generateArray( 100, 100 );
+                    }
+                    simulatorStatus = SimulatorStatus.STOPPED;
+                }
             }
             case RUNNING_SORTING -> {
                 sortingAlgorithmList.setEnabled(false);
-                numberElementsList.setEnabled(false);
                 shuffleButton.setEnabled(false);
                 startSortButton.setText("Skip");
+
+                switch (sortingAlgorithmList.getSelectedItemText()) {
+                    case "MergeSort", "SelectionSort", "InsertionSort" -> timeToAdvance = 0.00001;
+                    case "BucketSort", "CountingSort" -> timeToAdvance = 0.2;
+                    default -> timeToAdvance = 0.1; // shellSort
+                }
 
                 if  ( startSortButton.isMousePressed() ) {
                     // have to update together
@@ -254,7 +276,7 @@ public class Simulator extends EngineFrame {
                     collectToDraw();
                 }
 
-                if ( counter > 0.016 ){
+                if ( counter > timeToAdvance ){
                     if (sortingArrays != null && !sortingArrays.isEmpty()) {
                         updateSortingArrays();
                     } else if (sortingInformationQueue != null && !sortingInformationQueue.isEmpty()) {
@@ -270,32 +292,6 @@ public class Simulator extends EngineFrame {
         if ( shuffleButton.isMousePressed() ) {
             // have to update together
             ArrayUtils.shuffle(array, 100);
-            collectToDraw();
-        }
-
-        if ( numberElementsList.getSelectedItemText() != null &&
-                array.length != Integer.parseInt(numberElementsList.getSelectedItemText()) ) {
-            // have to update together
-            int n = Integer.parseInt(numberElementsList.getSelectedItemText());
-            array = new int[n];
-            switch (sortingAlgorithmList.getSelectedItemText()) {
-                case "CountingSort" -> {
-                    int a = 1;
-                    for ( int i = 0; i < n; i++ ) {
-                        array[i] = a++;
-                        if ( a > 10 ) {
-                            a = 1;
-                        }
-                    }
-                }
-                default -> {
-                    for ( int i = 0; i < n; i++ ) {
-                        array[i] = i + 1;
-                    }
-                }
-            }
-            ArrayUtils.shuffle( array, 200 );
-            calculateSizeUnity();
             collectToDraw();
         }
 
@@ -323,6 +319,41 @@ public class Simulator extends EngineFrame {
             component.draw();
         }
 
+        if (Objects.equals(sortingAlgorithmList.getSelectedItemText(), "CountingSort") && cumulationArray != null) {
+            fillRoundRectangle( countSortContainer, containerColor );
+            setStrokeLineWidth(4);
+            drawRoundRectangle( countSortContainer, borderContainerColor );
+            Vector2 gap = new  Vector2(
+                    10, 10
+            );
+            Vector2 size = new Vector2(
+                    countSortContainer.width - 2 * gap.x,
+                    (countSortContainer.height - (( cumulationArray.length ) * gap.y)) /
+                            (cumulationArray.length - 1)
+            );
+            double xIni = countSortContainer.x + gap.x;
+            double yIni = (countSortContainer.y + gap.y);
+            for ( int i = 1; i < cumulationArray.length; i++ ) {
+                float hue = (float) i / ArrayUtils.getMaxElement(array);
+                // Saturation e Brightness em 1.0f (cores vivas)
+                Color color = Color.getHSBColor(hue, 1.0f, 1.0f);
+                drawRectangle(
+                        xIni,
+                        yIni + ( i - 1) * (gap.y + size.y),
+                        size.x,
+                        size.y,
+                        color
+                );
+                int fontSize = 20;
+                String text = String.valueOf(cumulationArray[i]);
+                Rectangle textBounds = measureTextBounds( text, fontSize );
+                double x = xIni + size.x / 2 - textBounds.width / 2;
+                double y = (yIni + ( i - 1) * (gap.y + size.y)) + size.y / 2 - textBounds.height / 4;
+                drawText( text, x, y, fontSize, WHITE);
+            }
+            setStrokeLineWidth(1);
+        }
+
         drawFPS( 20, 20 );
     
     }
@@ -330,7 +361,7 @@ public class Simulator extends EngineFrame {
     private void calculateSizeUnity() {
 
         gapBetweenArrayElements = new Vector2(
-                -8.0/90 * array.length + 98/9.0,
+                -1.0/52 * array.length + 77/13.0,
                 20
         );
 
@@ -386,11 +417,62 @@ public class Simulator extends EngineFrame {
                         default -> throw new IllegalStateException("Unexpected value: " + bsi);
                     }
                 }
+                case CountingSortInformation csi -> {
+                    switch (csi) {
+                        case CountingSortCount csc -> {
+                            int arrayIndex = csc.getArrayIndex();
+                            int countIndex= csc.getCountIndex();
+
+                            cumulationArray[countIndex]++;
+
+                            float hue = (float) countIndex / ArrayUtils.getMaxElement(array);
+                            // Saturation e Brightness em 1.0f (cores vivas)
+                            Color cor = Color.getHSBColor(hue, 1.0f, 1.0f);
+                            elementList.get(arrayIndex).color = cor;
+                        }
+                        case CountingSortAccumulation csa -> {
+                            int countIndex = csa.getCountIndex();
+                            int valueAdded = csa.getValueAdded();
+
+                            cumulationArray[countIndex] += valueAdded;
+                        }
+                        case CountingSortRepositioning csr -> {
+
+                            int countDecrementIndex = csr.getCountDecrementIndex();
+                            int targetArrayIndex = csr.getTargetArrayIndex();
+                            int value = csr.getValue();
+
+                            for ( int i = countDecrementIndex; i < cumulationArray.length; i++ ) {
+                                cumulationArray[i]--;
+                            }
+
+                            array[targetArrayIndex] = value;
+
+                            collectToDraw();
+
+                        }
+                        default -> throw new IllegalStateException("Unexpected value: " + csi);
+                    }
+                }
                 default -> throw new IllegalStateException("Unexpected value: " + information);
             }
         } else {
             simulatorStatus =  SimulatorStatus.STOPPED;
         }
+    }
+
+    private void generateArray( int numberElements, int maxElement ) {
+        array = new int[numberElements];
+        int a = 1;
+        for ( int i = 0; i < numberElements; i++ ) {
+            array[i] = a++;
+            if ( a > maxElement) {
+                a = 1;
+            }
+        }
+        ArrayUtils.shuffle(array, SHUFFLE_COUNT);
+        calculateSizeUnity();
+        collectToDraw();
     }
 
     private void updateSortingArrays() {

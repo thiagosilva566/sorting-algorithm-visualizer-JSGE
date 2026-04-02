@@ -2,6 +2,7 @@ package sorting;
 
 import sorting.information.SortingInformation;
 import sorting.information.bucket.BucketSortInformation;
+import sorting.information.count.CountingSortInformation;
 import utils.ArrayUtils;
 
 import java.util.LinkedList;
@@ -171,7 +172,7 @@ public class SortingAlgorithms {
         return  informationQueue;
     }
 
-    public static Queue<int[]> countingSort( int[] array ) {
+    public static Queue<SortingInformation> countingSort( int[] array ) {
         return countingSort( array, ArrayUtils.getMaxElement(array) );
     }
 
@@ -181,34 +182,36 @@ public class SortingAlgorithms {
     * reflect this method.
     */
 
-    private static Queue<int[]> countingSort( int[] array, int maxValue ) {
+    private static Queue<SortingInformation> countingSort( int[] array, int maxValue ) {
         int n = array.length;
         int[] c = new int[maxValue+1];
         int[] b = new int[n];
 
-        sortingArrays =  new LinkedList<>();
-        sortingArrays.add(ArrayUtils.copy(array));
-        int[] copyArray = ArrayUtils.copy(array);
+        Queue<SortingInformation> information = new LinkedList<>();
 
         // count
         for ( int i = 0; i < n; i++ ) {
             c[array[i]]++;
+            information.add(CountingSortInformation.count(i, array[i]));
         }
+
         // accumulation
         for ( int i = 1; i <= maxValue; i++ ) {
             c[i] += c[i-1];
+            information.add(CountingSortInformation.accumulate(i, c[i - 1]));
         }
+
         // repositioning
         for ( int i = n-1; i >= 0; i-- ) {
             c[array[i]]--;
             b[c[array[i]]] = array[i];
 
-            copyArray[c[array[i]]] = array[i];
-            sortingArrays.add(ArrayUtils.copy(copyArray));
+            information.add(CountingSortInformation.reposition(array[i], c[array[i]], array[i]));
+
         }
 
         System.arraycopy( b, 0, array, 0, n );
 
-        return sortingArrays;
+        return information;
     }
 }
