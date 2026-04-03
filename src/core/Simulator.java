@@ -264,14 +264,20 @@ public class Simulator extends EngineFrame {
 
                 switch (sortingAlgorithmList.getSelectedItemText()) {
                     case "MergeSort", "SelectionSort", "InsertionSort" -> timeToAdvance = 0.00001;
-                    case "BucketSort", "CountingSort" -> timeToAdvance = 0.2;
+                    case "BucketSort", "CountingSort" -> timeToAdvance = 0.1;
                     default -> timeToAdvance = 0.1; // shellSort
                 }
 
                 if  ( startSortButton.isMousePressed() ) {
                     // have to update together
-                    while ( !sortingArrays.isEmpty() ) {
-                        array = sortingArrays.poll();
+                    if ( sortingArrays != null ) {
+                        while ( !sortingArrays.isEmpty() ) {
+                            array = sortingArrays.poll();
+                        }
+                    } else if ( sortingInformationQueue != null ) {
+                        while ( !sortingInformationQueue.isEmpty() ) {
+                            updateSortingInformationQueue();
+                        }
                     }
                     collectToDraw();
                 }
@@ -411,8 +417,7 @@ public class Simulator extends EngineFrame {
                             // Hue varia de 0.0 a 1.0
                             float hue = (float) bucket / 10;
                             // Saturation e Brightness em 1.0f (cores vivas)
-                            Color cor = Color.getHSBColor(hue, 1.0f, 1.0f);
-                            elementList.get(index).color = cor;
+                            elementList.get(index).color = Color.getHSBColor(hue, 1.0f, 1.0f);
                         }
                         default -> throw new IllegalStateException("Unexpected value: " + bsi);
                     }
@@ -427,8 +432,7 @@ public class Simulator extends EngineFrame {
 
                             float hue = (float) countIndex / ArrayUtils.getMaxElement(array);
                             // Saturation e Brightness em 1.0f (cores vivas)
-                            Color cor = Color.getHSBColor(hue, 1.0f, 1.0f);
-                            elementList.get(arrayIndex).color = cor;
+                            elementList.get(arrayIndex).color = Color.getHSBColor(hue, 1.0f, 1.0f);
                         }
                         case CountingSortAccumulation csa -> {
                             int countIndex = csa.getCountIndex();
